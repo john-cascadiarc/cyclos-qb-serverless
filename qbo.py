@@ -130,12 +130,27 @@ def handler (event, context):
 
 def create_vendor(user, company, vendorName):
    client = get_qbo_client(user, company)
-   vendor = Vendor.filter(DisplayName=vendorName, qb=client)
-   if len(vendor) == 0:
-      vendor = Vendor()
+   vendors = Vendor.filter(Active=True, DisplayName=vendorName, qb=client)
+   if len(vendors) > 0:
+      return vendor[0]
+   #
+   # Check for inactive vendors with the same name and rename
+   #  them since we cant delete them
+   logger.debug("Check for inactive vendor")
+   query = "Active = False AND DisplayName LIKE '{}%'".format(vendorName)
+   vendors = Vendor.where(query, qb=client)
+  #vendors = Vendor.filter(DisplayName=vendorName, qb=client)
+   for vendor in vendors:
+      #logger.debug("Renaming inactive vendor")
+      #vendor.DisplayName = vendorName + 'deleted' + str(time.time())
+      logger.debug("Reactivate vendor")
+      vendor.Active = True
       vendor.DisplayName = vendorName
       return vendor.save(qb=client)
-   return vendor[0]
+   
+   vendor = Vendor()
+   vendor.DisplayName = vendorName
+   return vendor.save(qb=client)
 
 def create_customer(user, company, name):
    client = get_qbo_client(user, company)
