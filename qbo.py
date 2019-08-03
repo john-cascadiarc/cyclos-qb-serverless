@@ -1,4 +1,4 @@
-import json, os, logging, re
+import json, os, logging, re, time, random
 import boto3
 import requests
 from intuitlib.client import AuthClient
@@ -130,16 +130,12 @@ def handler (event, context):
 
 def create_vendor(user, company, vendorName):
    client = get_qbo_client(user, company)
-   vendor = Vendor.filter(Active=True, DisplayName=vendorName, qb=client)
+   vendor = Vendor.filter(DisplayName=vendorName, qb=client)
    if len(vendor) == 0:
-      logger.debug("creating vendor "+vendorName)
       vendor = Vendor()
       vendor.DisplayName = vendorName
-      vendor = vendor.save(qb=client)
-      logger.debug("vendor saved")
-   else: 
-      vendor = vendor[0]
-   return vendor
+      return vendor.save(qb=client)
+   return vendor[0]
 
 def create_customer(user, company, name):
    client = get_qbo_client(user, company)

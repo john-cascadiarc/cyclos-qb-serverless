@@ -22,12 +22,6 @@
         "LogGroupName": "/aws/lambda/plugin-qbo-dev-quickbooks"
       }
     },
-    "AchLogGroup": {
-      "Type": "AWS::Logs::LogGroup",
-      "Properties": {
-        "LogGroupName": "/aws/lambda/plugin-qbo-dev-ach"
-      }
-    },
     "QboDashsetupLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
@@ -90,9 +84,6 @@
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-quickbooks:*"
                     },
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-ach:*"
-                    },
-                    {
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-qbo-setup:*"
                     },
                     {
@@ -111,9 +102,6 @@
                   "Resource": [
                     {
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-quickbooks:*:*"
-                    },
-                    {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-ach:*:*"
                     },
                     {
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/plugin-qbo-dev-qbo-setup:*:*"
@@ -198,7 +186,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/plugin-qbo/dev/1563099578954-2019-07-14T10:19:38.954Z/plugin-qbo.zip"
+          "S3Key": "serverless/plugin-qbo/dev/1564800819533-2019-08-03T02:53:39.533Z/plugin-qbo.zip"
         },
         "FunctionName": "plugin-qbo-dev-quickbooks",
         "Handler": "qbo.handler",
@@ -227,60 +215,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "QuickbooksLambdaVersionEFewShJMmSis0nDKkgf1aOQhdxEK2Z8hhnrrtFBDc": {
+    "QuickbooksLambdaVersionyI0qqv41uOGtBBiD4Vaz0FhdrGcUeZ7fmRzV0w5mnI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "QuickbooksLambdaFunction"
         },
-        "CodeSha256": "QM63qras8umfmvMN9Ygh8GD6/C/jFh/IJHml+eLk28A="
-      }
-    },
-    "AchLambdaFunction": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Ref": "ServerlessDeploymentBucket"
-          },
-          "S3Key": "serverless/plugin-qbo/dev/1563099578954-2019-07-14T10:19:38.954Z/plugin-qbo.zip"
-        },
-        "FunctionName": "plugin-qbo-dev-ach",
-        "Handler": "qbo.ach",
-        "MemorySize": 1024,
-        "Role": {
-          "Fn::GetAtt": [
-            "IamRoleLambdaExecution",
-            "Arn"
-          ]
-        },
-        "Runtime": "python3.6",
-        "Timeout": 6,
-        "Environment": {
-          "Variables": {
-            "STAGE": "dev",
-            "TABLE": "dev-plugin",
-            "CLIENT_KEY": "ABYFnHiceFAzmThTps78uxYDWBEaFumnV5G2jFf5dSAvfeYjWr",
-            "CLIENT_SECRET": "xSTRKFkxL2U2m9Kx88DLbqGGisbiu1uuV83YtDmm",
-            "CYCLOS_URL": "https://dev.leftcoastfs.com/lcfs_dev",
-            "LOGLEVEL": "DEBUG"
-          }
-        }
-      },
-      "DependsOn": [
-        "AchLogGroup",
-        "IamRoleLambdaExecution"
-      ]
-    },
-    "AchLambdaVersioni3JIQTcFoHRN6Sl5C2hJJwonIy2PdASQI11rnPB0g4": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "AchLambdaFunction"
-        },
-        "CodeSha256": "QM63qras8umfmvMN9Ygh8GD6/C/jFh/IJHml+eLk28A="
+        "CodeSha256": "Urwkf9Th7TJIEa4Ui45P2cgZ3vhf8lRXf1R1HbY4gRU="
       }
     },
     "QboDashsetupLambdaFunction": {
@@ -290,7 +232,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/plugin-qbo/dev/1563099578954-2019-07-14T10:19:38.954Z/plugin-qbo.zip"
+          "S3Key": "serverless/plugin-qbo/dev/1564800819533-2019-08-03T02:53:39.533Z/plugin-qbo.zip"
         },
         "FunctionName": "plugin-qbo-dev-qbo-setup",
         "Handler": "qbo.setup",
@@ -319,14 +261,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "QboDashsetupLambdaVersiony9tVKbd57aVAl9NFEgewxYzAHm1IhnuGGBB7s04d6Q": {
+    "QboDashsetupLambdaVersionyaBhrMcJNRBDi1w4BnVaoBUFpZvBBhEy801yqziuAAU": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "QboDashsetupLambdaFunction"
         },
-        "CodeSha256": "QM63qras8umfmvMN9Ygh8GD6/C/jFh/IJHml+eLk28A="
+        "CodeSha256": "Urwkf9Th7TJIEa4Ui45P2cgZ3vhf8lRXf1R1HbY4gRU="
       }
     },
     "QboDashpurchaseLambdaFunction": {
@@ -336,7 +278,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/plugin-qbo/dev/1563099578954-2019-07-14T10:19:38.954Z/plugin-qbo.zip"
+          "S3Key": "serverless/plugin-qbo/dev/1564800819533-2019-08-03T02:53:39.533Z/plugin-qbo.zip"
         },
         "FunctionName": "plugin-qbo-dev-qbo-purchase",
         "Handler": "qbo.do_purchase",
@@ -365,14 +307,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "QboDashpurchaseLambdaVersion0fZpwg3Cj8QhbsrFnPUxPIOWeohF1HM2DWiSelBs": {
+    "QboDashpurchaseLambdaVersionTBb9xJFCHDfqoYKzpl4KC5KqJmf2K51fNCkYxX9WsQ0": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "QboDashpurchaseLambdaFunction"
         },
-        "CodeSha256": "QM63qras8umfmvMN9Ygh8GD6/C/jFh/IJHml+eLk28A="
+        "CodeSha256": "Urwkf9Th7TJIEa4Ui45P2cgZ3vhf8lRXf1R1HbY4gRU="
       }
     },
     "QboDashpaymentLambdaFunction": {
@@ -382,7 +324,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/plugin-qbo/dev/1563099578954-2019-07-14T10:19:38.954Z/plugin-qbo.zip"
+          "S3Key": "serverless/plugin-qbo/dev/1564800819533-2019-08-03T02:53:39.533Z/plugin-qbo.zip"
         },
         "FunctionName": "plugin-qbo-dev-qbo-payment",
         "Handler": "qbo.do_payment",
@@ -411,14 +353,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "QboDashpaymentLambdaVersionM5l89Dp8m0IQ7nIu4RHvS3HHR3ymyWPLCb6NProAJVA": {
+    "QboDashpaymentLambdaVersionlFGJaVoAhv8zIkLYM5HDovXCvVvqBXV4ctfPCgDYAE": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "QboDashpaymentLambdaFunction"
         },
-        "CodeSha256": "QM63qras8umfmvMN9Ygh8GD6/C/jFh/IJHml+eLk28A="
+        "CodeSha256": "Urwkf9Th7TJIEa4Ui45P2cgZ3vhf8lRXf1R1HbY4gRU="
       }
     },
     "ApiGatewayRestApi": {
@@ -442,21 +384,6 @@
           ]
         },
         "PathPart": "qbo",
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayResourceAch": {
-      "Type": "AWS::ApiGateway::Resource",
-      "Properties": {
-        "ParentId": {
-          "Fn::GetAtt": [
-            "ApiGatewayRestApi",
-            "RootResourceId"
-          ]
-        },
-        "PathPart": "ach",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -509,53 +436,6 @@
         }
       }
     },
-    "ApiGatewayMethodAchOptions": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "MethodResponses": [
-          {
-            "StatusCode": "200",
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Origin": true,
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Credentials": true
-            },
-            "ResponseModels": {}
-          }
-        ],
-        "RequestParameters": {},
-        "Integration": {
-          "Type": "MOCK",
-          "RequestTemplates": {
-            "application/json": "{statusCode:200}"
-          },
-          "ContentHandling": "CONVERT_TO_TEXT",
-          "IntegrationResponses": [
-            {
-              "StatusCode": "200",
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
-                "method.response.header.Access-Control-Allow-Credentials": "'false'"
-              },
-              "ResponseTemplates": {
-                "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin == \"*\") #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
-              }
-            }
-          ]
-        },
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAch"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
     "ApiGatewayMethodQboPost": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
@@ -567,7 +447,7 @@
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         },
-        "ApiKeyRequired": false,
+        "ApiKeyRequired": true,
         "AuthorizationType": "NONE",
         "Integration": {
           "IntegrationHttpMethod": "POST",
@@ -599,50 +479,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayMethodAchPost": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "HttpMethod": "POST",
-        "RequestParameters": {},
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAch"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        },
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition"
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "AchLambdaFunction",
-                    "Arn"
-                  ]
-                },
-                "/invocations"
-              ]
-            ]
-          }
-        },
-        "MethodResponses": []
-      }
-    },
-    "ApiGatewayDeployment1563099551835": {
+    "ApiGatewayDeployment1564800793372": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -652,10 +489,52 @@
       },
       "DependsOn": [
         "ApiGatewayMethodQboOptions",
-        "ApiGatewayMethodAchOptions",
-        "ApiGatewayMethodQboPost",
-        "ApiGatewayMethodAchPost"
+        "ApiGatewayMethodQboPost"
       ]
+    },
+    "ApiGatewayApiKey1": {
+      "Type": "AWS::ApiGateway::ApiKey",
+      "Properties": {
+        "Enabled": true,
+        "Name": "qbo",
+        "StageKeys": [
+          {
+            "RestApiId": {
+              "Ref": "ApiGatewayRestApi"
+            },
+            "StageName": "dev"
+          }
+        ]
+      },
+      "DependsOn": "ApiGatewayDeployment1564800793372"
+    },
+    "ApiGatewayUsagePlan": {
+      "Type": "AWS::ApiGateway::UsagePlan",
+      "DependsOn": "ApiGatewayDeployment1564800793372",
+      "Properties": {
+        "ApiStages": [
+          {
+            "ApiId": {
+              "Ref": "ApiGatewayRestApi"
+            },
+            "Stage": "dev"
+          }
+        ],
+        "Description": "Usage plan for plugin-qbo dev stage",
+        "UsagePlanName": "plugin-qbo-dev"
+      }
+    },
+    "ApiGatewayUsagePlanKey1": {
+      "Type": "AWS::ApiGateway::UsagePlanKey",
+      "Properties": {
+        "KeyId": {
+          "Ref": "ApiGatewayApiKey1"
+        },
+        "KeyType": "API_KEY",
+        "UsagePlanId": {
+          "Ref": "ApiGatewayUsagePlan"
+        }
+      }
     },
     "QuickbooksLambdaPermissionApiGateway": {
       "Type": "AWS::Lambda::Permission",
@@ -663,53 +542,6 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "QuickbooksLambdaFunction",
-            "Arn"
-          ]
-        },
-        "Action": "lambda:InvokeFunction",
-        "Principal": {
-          "Fn::Join": [
-            "",
-            [
-              "apigateway.",
-              {
-                "Ref": "AWS::URLSuffix"
-              }
-            ]
-          ]
-        },
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition"
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region"
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId"
-              },
-              ":",
-              {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "/*/*"
-            ]
-          ]
-        }
-      }
-    },
-    "AchLambdaPermissionApiGateway": {
-      "Type": "AWS::Lambda::Permission",
-      "Properties": {
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "AchLambdaFunction",
             "Arn"
           ]
         },
@@ -806,31 +638,25 @@
     "QuickbooksLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "QuickbooksLambdaVersionEFewShJMmSis0nDKkgf1aOQhdxEK2Z8hhnrrtFBDc"
-      }
-    },
-    "AchLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "AchLambdaVersioni3JIQTcFoHRN6Sl5C2hJJwonIy2PdASQI11rnPB0g4"
+        "Ref": "QuickbooksLambdaVersionyI0qqv41uOGtBBiD4Vaz0FhdrGcUeZ7fmRzV0w5mnI"
       }
     },
     "QboDashsetupLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "QboDashsetupLambdaVersiony9tVKbd57aVAl9NFEgewxYzAHm1IhnuGGBB7s04d6Q"
+        "Ref": "QboDashsetupLambdaVersionyaBhrMcJNRBDi1w4BnVaoBUFpZvBBhEy801yqziuAAU"
       }
     },
     "QboDashpurchaseLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "QboDashpurchaseLambdaVersion0fZpwg3Cj8QhbsrFnPUxPIOWeohF1HM2DWiSelBs"
+        "Ref": "QboDashpurchaseLambdaVersionTBb9xJFCHDfqoYKzpl4KC5KqJmf2K51fNCkYxX9WsQ0"
       }
     },
     "QboDashpaymentLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "QboDashpaymentLambdaVersionM5l89Dp8m0IQ7nIu4RHvS3HHR3ymyWPLCb6NProAJVA"
+        "Ref": "QboDashpaymentLambdaVersionlFGJaVoAhv8zIkLYM5HDovXCvVvqBXV4ctfPCgDYAE"
       }
     },
     "ServiceEndpoint": {

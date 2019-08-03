@@ -23,6 +23,8 @@ provider:
     CLIENT_SECRET: ${ssm:/${self:provider.stage}/qb-cyclos/secret~true}
     CYCLOS_URL: 'https://dev.leftcoastfs.com/lcfs_dev'
     LOGLEVEL: DEBUG
+  apiKeys:
+    - qbo
   iamRoleStatements: # permissions for all of your functions can be set here
     - Effect: Allow
       Action:
@@ -49,6 +51,7 @@ functions:
           path: /qbo
           method: post
           cors: true
+          private: true
   qbo-setup:
     handler: qbo.setup
     timeout: 60
