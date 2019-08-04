@@ -26,6 +26,7 @@ REDIRECT_URI = os.environ.get("REDIRECT_URI", 'localhost:5000')
 QBO_ENV = os.environ.get("QBO_ENV", 'sandbox')
 PURCHASE_QUEUE = os.environ.get("PURCHASE_QUEUE", 'qbo-purchase')
 PAYMENT_QUEUE = os.environ.get("PAYMENT_QUEUE", 'qbo-payment')
+CYCLOS_TOKEN = os.environ.get("CYCLOS_TOKEN")
 
 auth_client = AuthClient(
          CLIENT_KEY,
@@ -96,10 +97,7 @@ def get_balance(user, token):
 
 
 def get_token(user, company):
-   db = boto3.resource('dynamodb')
-   table = db.Table(TABLE)
-   response = table.get_item(Key={'user': user, 'company': company})
-   return response['Item']['cyclos_token']
+   return CYCLOS_TOKEN
 
 def handler (event, context):
    data = json.loads(event['body'])
