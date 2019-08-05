@@ -22,6 +22,7 @@ provider:
     CLIENT_KEY: ${ssm:/${self:provider.stage}/qb-cyclos/key~true}
     CLIENT_SECRET: ${ssm:/${self:provider.stage}/qb-cyclos/secret~true}
     CYCLOS_URL: 'https://dev.leftcoastfs.com/lcfs_dev'
+    CYCLOS_TOKEN: ${ssm:/${self:provider.stage}/qbo/cyclos_token~true}
     LOGLEVEL: DEBUG
   apiKeys:
     - qbo
