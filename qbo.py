@@ -196,7 +196,7 @@ def payment(customer, account, amount, client, description=None):
          "PrivateNote": description,
          "TotalAmt": amount, 
          "CustomerRef": {
-           "value": customer.Id
+            "value": customer.Id
          },
          "DepositToAccountRef":  {
             "value": account.Id
@@ -209,25 +209,25 @@ def purchase(vendor, account, amount, client, description=None):
    purchase_acct = Account.filter(Name='Purchases', qb=client)[0]
    purchase = Purchase().from_json(
       {
-        "PaymentType": "Check", 
-        "AccountRef": {
-          "value": account.Id
-        }, 
-        "EntityRef": {
-           "type": "Vendor",
-           "value": vendor.Id
-        },
-        "PrivateNote": description,
-        "Line": [
-          {
-            "DetailType": "AccountBasedExpenseLineDetail", 
-            "Amount": amount, 
-            "AccountBasedExpenseLineDetail": {
-              "AccountRef": {
-                "value": purchase_acct.Id
-              }
+         "PaymentType": "Check", 
+         "AccountRef": {
+            "value": account.Id
+         }, 
+         "EntityRef": {
+            "type": "Vendor",
+            "value": vendor.Id
+         },
+         "PrivateNote": description,
+         "Line": [
+            {
+               "DetailType": "AccountBasedExpenseLineDetail", 
+               "Amount": amount, 
+               "AccountBasedExpenseLineDetail": {
+                  "AccountRef": {
+                     "value": purchase_acct.Id
+                  }
+               } 
             }
-          }
          ]
       }
    )
