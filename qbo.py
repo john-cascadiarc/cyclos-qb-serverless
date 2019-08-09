@@ -28,13 +28,6 @@ PURCHASE_QUEUE = os.environ.get("PURCHASE_QUEUE", 'qbo-purchase')
 PAYMENT_QUEUE = os.environ.get("PAYMENT_QUEUE", 'qbo-payment')
 CYCLOS_TOKEN = os.environ.get("CYCLOS_TOKEN")
 
-auth_client = AuthClient(
-         CLIENT_KEY,
-         CLIENT_SECRET,
-         REDIRECT_URI,
-         QBO_ENV
-) 
-
 def setup(event, context):
    payload = json.loads(event['Records'][0]['body'])
    user = payload['user']
@@ -52,6 +45,7 @@ def get_qbo_client(user, company):
    db = boto3.resource('dynamodb')
    table = db.Table(TABLE)
    response = table.get_item(Key={'user': user, 'company': company})
+   token = response['Item']['qbo_refresh_token']
    auth_client = AuthClient(
       CLIENT_KEY,
       CLIENT_SECRET,
@@ -60,28 +54,59 @@ def get_qbo_client(user, company):
    ) 
    return QuickBooks(
       auth_client=auth_client,
-      refresh_token=response['Item']['qbo_refresh_token'],
+      refresh_token=token,
       environment=QBO_ENV,
       company_id=company
    )
 
+#
+# Lambda handler
+#
+def refresh_tokens(event, context):
+   db = boto3.resource('dynamodb')
+   table = db.Table(TABLE)
+   response = table.scan()
+   for item in response['Items']: 
+      logger.debug('Refreshing company {}'.format(item['company']))
+      token = refresh_token(item['qbo_refresh_token'])
+      table.update_item(
+         Key={ 
+            'company': item['company'], 
+            'user': item['user'] 
+         },
+         UpdateExpression="set #attr = :token",
+         ExpressionAttributeValues={ ':token': token },
+         ExpressionAttributeNames={ '#attr': 'qbo_refresh_token' }
+      )
+   logger.info("All tokens refreshed")
+
+def refresh_token(token):
+   auth_client = AuthClient(
+      CLIENT_KEY,
+      CLIENT_SECRET,
+      REDIRECT_URI,
+      QBO_ENV
+   )
+   auth_client.refresh(refresh_token=token)
+   return auth_client.refresh_token
 
 def activate(user, company):
    db = boto3.resource('dynamodb')
    table = db.Table(TABLE)
-   response = table.update_item(
+   table.update_item(
       Key={
-        'user': user,
-        'company': company
+         'user': user,
+         'company': company
       },
       UpdateExpression="set #s = :r",
       ExpressionAttributeValues={
-        ':r': 'ACTIVE',
+         ':r': 'ACTIVE',
       },
       ExpressionAttributeNames={
          '#s': 'status'
       }
    )
+
 def get_balance(user, token):
    url = CYCLOS_URL+'/api/'+user+'/accounts'
    headers = {

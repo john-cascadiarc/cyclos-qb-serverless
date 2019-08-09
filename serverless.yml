@@ -71,6 +71,11 @@ functions:
     events:
       - sqs: arn:aws:sqs:us-west-2:386461531385:qbo-payment
         batchSize: 1
+  qbo-refresh-tokens:
+      handler: qbo.refresh_tokens
+      timeout: 600
+      events:
+        - schedule: rate(24 hours)
 
 plugins:
   - serverless-python-requirements
