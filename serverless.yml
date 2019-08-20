@@ -21,7 +21,7 @@ provider:
     TABLE: ${self:provider.stage}-plugin
     CLIENT_KEY: ${ssm:/${self:provider.stage}/qb-cyclos/key~true}
     CLIENT_SECRET: ${ssm:/${self:provider.stage}/qb-cyclos/secret~true}
-    CYCLOS_URL: 'https://dev.leftcoastfs.com/lcfs_dev'
+    CYCLOS_URL: ${self:custom.cyclosurl.${self:provider.stage}}
     CYCLOS_TOKEN: ${ssm:/${self:provider.stage}/qbo/cyclos_token~true}
     LOGLEVEL: DEBUG
   apiKeys:
@@ -34,7 +34,7 @@ provider:
     - Effect: Allow
       Action:
         - sqs:*
-      Resource: "*"
+      Resource: "arn:aws:sqs:us-west-2:*:qbo-*"
       
 
 # you can add packaging information here
@@ -55,21 +55,21 @@ functions:
           private: true
   qbo-setup:
     handler: qbo.setup
-    timeout: 60
-    events:
-      - sqs: arn:aws:sqs:us-west-2:386461531385:qbo-setup
+    timeout: 25
+    events: 
+      - sqs: arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:qbo-setup
         batchSize: 1
   qbo-purchase:
     handler: qbo.do_purchase
     timeout: 25
     events:
-      - sqs: arn:aws:sqs:us-west-2:386461531385:qbo-purchase
+      - sqs: arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:qbo-purchase
         batchSize: 1
   qbo-payment:
     handler: qbo.do_payment
     timeout: 25
     events:
-      - sqs: arn:aws:sqs:us-west-2:386461531385:qbo-payment
+      - sqs: arn:aws:sqs:#{AWS::Region}:#{AWS::AccountId}:qbo-payment
         batchSize: 1
   qbo-refresh-tokens:
       handler: qbo.refresh_tokens
@@ -79,7 +79,17 @@ functions:
 
 plugins:
   - serverless-python-requirements
+  - serverless-pseudo-parameters
 custom:
+  stages:
+    - dev
+    - prod
+    - uat
+  cyclosurl:
+    dev: https://dev.leftcoastfs.com/lcfs_dev
+    prod: https://prod.leftcostfs.com
+    uat: https://uat.leftcoastfs.com
+
   pythonRequirements:
     dockerizePip: non-linux
     useDownloadCache: true

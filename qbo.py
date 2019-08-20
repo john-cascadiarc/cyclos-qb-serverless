@@ -52,12 +52,23 @@ def get_qbo_client(user, company):
       REDIRECT_URI,
       QBO_ENV
    ) 
-   return QuickBooks(
+   auth_client.refresh(refresh_token=token)
+   client = QuickBooks(
       auth_client=auth_client,
-      refresh_token=token,
+      refresh_token=auth_client.refresh_token,
       environment=QBO_ENV,
       company_id=company
    )
+   table.update_item(
+         Key={ 
+            'company': company, 
+            'user': user 
+         },
+         UpdateExpression="set #attr = :token",
+         ExpressionAttributeValues={ ':token': auth_client.refresh_token },
+         ExpressionAttributeNames={ '#attr': 'qbo_refresh_token' }
+      )
+   return client
 
 #
 # Lambda handler
@@ -155,14 +166,13 @@ def create_vendor(user, company, vendorName):
    client = get_qbo_client(user, company)
    vendors = Vendor.filter(Active=True, DisplayName=vendorName, qb=client)
    if len(vendors) > 0:
-      return vendor[0]
+      return vendors[0]
    #
    # Check for inactive vendors with the same name and rename
    #  them since we cant delete them
    logger.debug("Check for inactive vendor")
    query = "Active = False AND DisplayName LIKE '{}%'".format(vendorName)
    vendors = Vendor.where(query, qb=client)
-  #vendors = Vendor.filter(DisplayName=vendorName, qb=client)
    for vendor in vendors:
       #logger.debug("Renaming inactive vendor")
       #vendor.DisplayName = vendorName + 'deleted' + str(time.time())

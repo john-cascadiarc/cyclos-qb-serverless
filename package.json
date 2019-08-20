@@ -2,7 +2,9 @@
   "name": "plugin-qbo",
   "description": "",
   "version": "0.1.0",
-  "dependencies": {},
+  "dependencies": {
+    "serverless-pseudo-parameters": "^2.4.0"
+  },
   "devDependencies": {
     "serverless-python-requirements": "^4.3.0"
   }
