@@ -1,6 +1,7 @@
 import json, os, logging, re, time, random
 import boto3
 import requests
+import urllib.parse
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from quickbooks import QuickBooks
@@ -38,6 +39,7 @@ def setup(event, context):
       account = create_lcfs_account(client)
       cyclos_token = get_token(user, company)
       balance = get_balance(user, cyclos_token)
+      time.sleep(5) # wait for account to create in qbo
       fund_account(account, balance, client)
    activate(user, company)
    
@@ -61,7 +63,7 @@ def get_qbo_client(user, company):
    )
    table.update_item(
          Key={ 
-            'company': company, 
+            'company': company,
             'user': user 
          },
          UpdateExpression="set #attr = :token",
@@ -119,9 +121,9 @@ def activate(user, company):
    )
 
 def get_balance(user, token):
-   url = CYCLOS_URL+'/api/'+user+'/accounts'
+   url = CYCLOS_URL+'/api/'+urllib.parse.quote(user)+'/accounts'
    headers = {
-      'Principal': 'username',
+      'Principal': '*',
       'Authorization': 'Basic '+token,
       'Accept': 'application/json'
    }
@@ -130,6 +132,9 @@ def get_balance(user, token):
       data = res.json()
       balance = data[0]['status']['balance']
       return balance
+   else:
+      raise Exception('Cyclos API failure')
+
 
 
 def get_token(user, company):
@@ -241,7 +246,12 @@ def payment(customer, account, amount, client, description=None):
    return payment.save(qb=client)
 
 def purchase(vendor, account, amount, client, description=None):
-   purchase_acct = Account.filter(Name='Purchases', qb=client)[0]
+   purchase_acct = Account.filter(Name='LCFS Purchases', qb=client)
+   if len(purchase_acct) == 0:
+      purchase_acct = create_purchase_account(client)
+   else:
+      purchase_acct = purchase_acct[0]
+   
    purchase = Purchase().from_json(
       {
          "PaymentType": "Check", 
@@ -268,8 +278,24 @@ def purchase(vendor, account, amount, client, description=None):
    )
    return purchase.save(qb=client)
 
+def create_equity_account(client):
+   logger.info("Creating equity account")
+   account = Account()
+   account.Name = "LCFS Opening Balance Equity"
+   account.AccountType = "Equity"
+   account.AccountSubType = "OpeningBalanceEquity"
+   return account.save(qb=client)
+
+def create_purchase_account(client):
+   logger.info("Creating purchase account")
+   account = Account()
+   account.Name = "LCFS Purchases"
+   account.AccountType = ""
+   account.AccountSubType = ""
+   return account.save(qb=client)
+
 def create_lcfs_account(client):
-   logger.debug("Setting up LCFS account...")
+   logger.info("Setting up LCFS account...")
    account = Account()
    account.Name = "Left Coast Financial"
    account.AccountType = "Bank"
@@ -277,11 +303,17 @@ def create_lcfs_account(client):
    return account.save(qb=client)
 
 def fund_account(account, amount, client):
+   logger.info("Funding account")
    equity_account = Account.filter(
       Active=True, 
-      Name="Opening Balance Equity", 
+      AccountSubType="OpeningBalanceEquity", 
       qb=client
    )
+   if len(equity_account) == 0:
+      equity_account = create_equity_account(client)
+   else:
+      equity_account = equity_account[0]
+
    deposit = Deposit().from_json(
        {
          "PrivateNote": "Initial LCFS account link",
@@ -289,10 +321,10 @@ def fund_account(account, amount, client):
             {
               "Description": "Initial LCFS account link",
               "DetailType": "DepositLineDetail", 
-              "Amount": float(amount), 
+              "Amount": float(amount),
               "DepositLineDetail": {
                 "AccountRef": {
-                  "value": equity_account[0].Id
+                  "value": equity_account.Id
                 }
               }
             }
