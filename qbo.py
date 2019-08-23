@@ -241,12 +241,12 @@ def payment(customer, account, amount, client, description=None):
          "DepositToAccountRef":  {
             "value": account.Id
          }
-      }
+         )      }
    )
    return payment.save(qb=client)
 
 def purchase(vendor, account, amount, client, description=None):
-   purchase_acct = Account.filter(Name='LCFS Purchases', qb=client)
+   purchase_acct = Account.filter(AccountType='Accounts Payable', AccountSubType='Accounts Payable', qb=client)
    if len(purchase_acct) == 0:
       purchase_acct = create_purchase_account(client)
    else:
@@ -289,9 +289,9 @@ def create_equity_account(client):
 def create_purchase_account(client):
    logger.info("Creating purchase account")
    account = Account()
-   account.Name = "LCFS Purchases"
-   account.AccountType = ""
-   account.AccountSubType = ""
+   account.Name = "LCFS Accounts Payable"
+   account.AccountType = "Accounts Payable"
+   account.AccountSubType = "Accounts Payable"
    return account.save(qb=client)
 
 def create_lcfs_account(client):
@@ -306,7 +306,8 @@ def fund_account(account, amount, client):
    logger.info("Funding account")
    equity_account = Account.filter(
       Active=True, 
-      AccountSubType="OpeningBalanceEquity", 
+      AccountType="Opening Balance Equity"
+      AccountSubType="Opening Balance Equity", 
       qb=client
    )
    if len(equity_account) == 0:
