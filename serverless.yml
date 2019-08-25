@@ -1,4 +1,4 @@
-# Welcome to Serverless!
+
 #
 # This file is the main config file for your service.
 #
@@ -23,7 +23,7 @@ provider:
     CLIENT_SECRET: ${ssm:/${self:provider.stage}/qb-cyclos/secret~true}
     CYCLOS_URL: ${self:custom.cyclosurl.${self:provider.stage}}
     CYCLOS_TOKEN: ${ssm:/${self:provider.stage}/qbo/cyclos_token~true}
-    LOGLEVEL: DEBUG
+    LOGLEVEL: ${env:LOGLEVEL, 'INFO'}
   apiKeys:
     - qbo
   iamRoleStatements: # permissions for all of your functions can be set here

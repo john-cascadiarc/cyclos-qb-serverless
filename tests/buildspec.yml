@@ -1,0 +1,22 @@
+version: 0.2
+
+#env:
+  #variables:
+     # key: "value"
+     # key: "value"
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+  #git-credential-helper: yes
+
+phases:
+  install:
+    commands: 
+       - yum install nodejs npm --enablerepo=epel
+       - yum install python3.6
+       - yum install make
+       - npm install serverless
+       - npm install
+  build:
+    commands:
+       - make test

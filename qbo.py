@@ -13,6 +13,7 @@ from quickbooks.objects.bill import Bill
 from quickbooks.objects.billpayment import BillPayment
 from quickbooks.objects.payment import Payment
 from quickbooks.objects.customer import Customer
+from quickbooks.exceptions import QuickbooksException
 from boto3.dynamodb.conditions import Key, Attr
 
 logger = logging.getLogger()
@@ -33,21 +34,38 @@ def setup(event, context):
    payload = json.loads(event['Records'][0]['body'])
    user = payload['user']
    company = payload['company']
+   user_obj = get_user(user, company)
+
+
    client = get_qbo_client(user, company)
-   account = Account.filter(Name="Left Coast Financial", qb=client)
-   if len(account) == 0:
-      account = create_lcfs_account(client)
+   account = get_account("Left Coast Financial", user, company, client)
+   if account == None:
+      account = create_lcfs_account("Left Coast Financial", client)
       cyclos_token = get_token(user, company)
       balance = get_balance(user, cyclos_token)
-      time.sleep(5) # wait for account to create in qbo
       fund_account(account, balance, client)
-   activate(user, company)
+   update_status('ACTIVE', user, company)
+   logger.info("Account setup complete.")
+   return { 'statusCode': 200, 'body': "Account Setup Complete" }
+
    
-def get_qbo_client(user, company):
+def get_account(name, user, company, client):
+   account = Account.filter(Active=True, Name=name, qb=client)
+   if len(account) == 0:
+      return None
+   else:
+      return account[0]
+
+def get_user(user,company):
    db = boto3.resource('dynamodb')
    table = db.Table(TABLE)
    response = table.get_item(Key={'user': user, 'company': company})
-   token = response['Item']['qbo_refresh_token']
+   return response['Item']
+
+def get_qbo_client(user, company):
+   db = boto3.resource('dynamodb')
+   table = db.Table(TABLE)
+   token = get_user(user,company)['qbo_refresh_token']
    auth_client = AuthClient(
       CLIENT_KEY,
       CLIENT_SECRET,
@@ -61,7 +79,7 @@ def get_qbo_client(user, company):
       environment=QBO_ENV,
       company_id=company
    )
-   table.update_item(
+   response = table.update_item(
          Key={ 
             'company': company,
             'user': user 
@@ -80,7 +98,7 @@ def refresh_tokens(event, context):
    table = db.Table(TABLE)
    response = table.scan()
    for item in response['Items']: 
-      logger.debug('Refreshing company {}'.format(item['company']))
+      logger.info('Refreshing company {}'.format(item['company']))
       token = refresh_token(item['qbo_refresh_token'])
       table.update_item(
          Key={ 
@@ -103,7 +121,7 @@ def refresh_token(token):
    auth_client.refresh(refresh_token=token)
    return auth_client.refresh_token
 
-def activate(user, company):
+def update_status(status, user, company):
    db = boto3.resource('dynamodb')
    table = db.Table(TABLE)
    table.update_item(
@@ -113,7 +131,7 @@ def activate(user, company):
       },
       UpdateExpression="set #s = :r",
       ExpressionAttributeValues={
-         ':r': 'ACTIVE',
+         ':r': status,
       },
       ExpressionAttributeNames={
          '#s': 'status'
@@ -131,11 +149,9 @@ def get_balance(user, token):
    if res.status_code == 200:
       data = res.json()
       balance = data[0]['status']['balance']
-      return balance
+      return float(balance)
    else:
       raise Exception('Cyclos API failure')
-
-
 
 def get_token(user, company):
    return CYCLOS_TOKEN
@@ -241,7 +257,7 @@ def payment(customer, account, amount, client, description=None):
          "DepositToAccountRef":  {
             "value": account.Id
          }
-         )      }
+      }
    )
    return payment.save(qb=client)
 
@@ -278,13 +294,22 @@ def purchase(vendor, account, amount, client, description=None):
    )
    return purchase.save(qb=client)
 
-def create_equity_account(client):
+def create_equity_account(name, client):
    logger.info("Creating equity account")
-   account = Account()
-   account.Name = "LCFS Opening Balance Equity"
-   account.AccountType = "Equity"
-   account.AccountSubType = "OpeningBalanceEquity"
-   return account.save(qb=client)
+   account = Account.filter(Active=True, AccountType="Equity", AccountSubType="OpeningBalanceEquity", qb=client)
+   if len(account) == 0:
+      account = Account()
+      account.Name = name
+      account.AccountType = "Equity"
+      account.AccountSubType = "OpeningBalanceEquity"
+      try: 
+         account.save(qb=client)
+      except QuickbooksException:
+         account = Account.filter(AccountType="Equity",AccountSubType="OpeningBalanceEquity", qb=client)
+         return account[0]
+      return account.save(qb=client)
+   else: 
+      return account[0]
 
 def create_purchase_account(client):
    logger.info("Creating purchase account")
@@ -294,27 +319,17 @@ def create_purchase_account(client):
    account.AccountSubType = "Accounts Payable"
    return account.save(qb=client)
 
-def create_lcfs_account(client):
+def create_lcfs_account(name, client):
    logger.info("Setting up LCFS account...")
    account = Account()
-   account.Name = "Left Coast Financial"
+   account.Name = name
    account.AccountType = "Bank"
    account.AccountSubType = "Checking"
    return account.save(qb=client)
 
 def fund_account(account, amount, client):
    logger.info("Funding account")
-   equity_account = Account.filter(
-      Active=True, 
-      AccountType="Opening Balance Equity"
-      AccountSubType="Opening Balance Equity", 
-      qb=client
-   )
-   if len(equity_account) == 0:
-      equity_account = create_equity_account(client)
-   else:
-      equity_account = equity_account[0]
-
+   equity_account = create_equity_account("LCFS Opening Balance", client)
    deposit = Deposit().from_json(
        {
          "PrivateNote": "Initial LCFS account link",

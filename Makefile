@@ -1,4 +1,4 @@
-.PHONY: help dev test lint run doc clean venv
+.PHONY: help dev test deploy clean venv
 
 VENV_NAME?=venv
 VENV_ACTIVATE=. $(VENV_NAME)/bin/activate
@@ -19,12 +19,17 @@ $(VENV_NAME)/bin/activate: requirements.txt
 	touch $(VENV_NAME)/bin/activate
 
 dev: venv dev-requirements
-dev-requirements: dev-requirements.txt
+
+dev-requirements: tests/dev-requirements.txt
 	. $(VENV_NAME)/bin/activate ;\
-	pip install -r dev-requirements.txt
+	pip install -r tests/dev-requirements.txt
+	touch tests/dev-requirements.txt
 
 test: dev
-	${PYTHON} -m unittest discover -s tests -v
+	${PYTHON} -W ignore:ResourceWarning -m unittest discover -s tests -vvv
 
 clean: 
 	rm -rf $(VENV_NAME)
+
+deploy: 
+	sls deploy
